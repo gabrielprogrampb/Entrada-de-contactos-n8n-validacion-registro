@@ -74,11 +74,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+              "value": "TU_SUPABASE_API_KEY"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+              "value": "Bearer TU_SUPABASE_API_KEY"
             },
             {
               "name": "Content-Type",
@@ -164,11 +164,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+              "value": "TU_SUPABASE_API_KEY"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+              "value": "Bearer TU_SUPABASE_API_KEY"
             },
             {
               "name": "Content-Type",
