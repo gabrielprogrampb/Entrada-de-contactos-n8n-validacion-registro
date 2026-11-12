@@ -68,7 +68,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://bohfyoaabfvmqfizvkin.supabase.co/rest/v1/contactos",
+        "url": "https://TU_PROYECTO.supabase.co/rest/v1/contactos",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -158,7 +158,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://bohfyoaabfvmqfizvkin.supabase.co/rest/v1/logs_ejecucion",
+        "url": "https://TU_PROYECTO.supabase.co/rest/v1/logs_ejecucion",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
