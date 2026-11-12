@@ -1,0 +1,278 @@
+{
+  "name": "Flujo A [LISTO v3] - validacion y logs",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "contacto",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\nconst out = [];\nfor (const item of items) {\n  const b = item.json.body ?? item.json;\n  const errores = [];\n  const event_id = String(b.event_id ?? '').trim();\n  const nombre = String(b.nombre ?? '').trim();\n  const email = String(b.email ?? '').trim().toLowerCase();\n  let mensaje = String(b.mensaje ?? '').trim();\n\n  if (!event_id) errores.push('event_id es obligatorio');\n  if (nombre.length < 2 || nombre.length > 80) errores.push('nombre: 2 a 80 caracteres');\n  if (!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)) errores.push('email no valido');\n\n  let truncado = false;\n  if (mensaje.length < 10) errores.push('mensaje: minimo 10 caracteres');\n  if (mensaje.length > 2000) { mensaje = mensaje.slice(0, 2000); truncado = true; }\n\n  out.push({ json: {\n    event_id, nombre, email, mensaje, truncado,\n    origen: String(b.origen ?? 'web'),\n    valido: errores.length === 0,\n    errores,\n    recibido_en: new Date().toISOString()\n  }});\n}\nreturn out;\n"
+      },
+      "id": "a2",
+      "name": "Validar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.valido }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a3",
+      "name": "Valido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bohfyoaabfvmqfizvkin.supabase.co/rest/v1/contactos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event_id: $json.event_id, nombre: $json.nombre, email: $json.email, mensaje: $json.mensaje, origen: $json.origen, truncado: $json.truncado }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "a4",
+      "name": "Guardar contacto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, event_id: $json.event_id ?? $node[\"Validar\"].json.event_id }) }}",
+        "options": {}
+      },
+      "id": "a5",
+      "name": "Responder 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\nreturn items.map(i => ({ json: { ok: false, errores: i.json.errores, event_id: i.json.event_id, recibido_en: new Date().toISOString() } }));\n"
+      },
+      "id": "a6",
+      "name": "Armar error 400",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, errores: $node[\"Armar error 400\"].json.errores, event_id: $node[\"Armar error 400\"].json.event_id, recibido_en: $node[\"Armar error 400\"].json.recibido_en }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "a7",
+      "name": "Responder 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bohfyoaabfvmqfizvkin.supabase.co/rest/v1/logs_ejecucion",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvaGZ5b2FhYmZ2bXFmaXp2a2luIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM1MjMxOSwiZXhwIjoyMTA1OTI4MzE5fQ.67YcvYLRZ223pknpNTtlRvxs2UJVPPus4jupHJVSEkw"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event_id: $json.event_id, resultado: 'error_validacion', paso_fallido: 'Validar', mensaje_error: ($json.errores || []).join('; ') }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "a8",
+      "name": "Log error validacion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar": {
+      "main": [
+        [
+          {
+            "node": "Valido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valido?": {
+      "main": [
+        [
+          {
+            "node": "Guardar contacto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Armar error 400",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar contacto": {
+      "main": [
+        [
+          {
+            "node": "Responder 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar error 400": {
+      "main": [
+        [
+          {
+            "node": "Log error validacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder 400": {
+      "main": []
+    },
+    "Log error validacion": {
+      "main": [
+        [
+          {
+            "node": "Responder 400",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null
+}
